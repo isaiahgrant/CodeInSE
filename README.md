@@ -8,7 +8,7 @@ familiarize yourself with this, I will reference it regularly. It is also
 a dependency of the framework (and should be for any SE development IMHO)
 so make sure that you have it installed.
 
-Borrowed a line from Malware:
+Recycled line from Malware:
 Space Engineers is trademarked to Keen Software House. This toolkit (framework) is fan-made, and its developer has no relation to Keen Software House (or Malware).
 
 ## Basic Usage
