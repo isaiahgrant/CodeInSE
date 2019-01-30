@@ -3,7 +3,10 @@ A C#-based framework, built on Malware's MDK, used for development of Ingame scr
 
 KSH: https://www.spaceengineersgame.com/
 
-MDK: https://github.com/malware-dev/MDK-SE/wiki -- I highly suggest you familiarize yourself with this, I will reference it regularly.
+MDK: https://github.com/malware-dev/MDK-SE/wiki -- I highly suggest you
+familiarize yourself with this, I will reference it regularly. It is also
+a dependency of the framework (and should be for any SE development IMHO)
+so make sure that you have it installed.
 
 Borrowed a line from Malware:
 Space Engineers is trademarked to Keen Software House. This toolkit (framework) is fan-made, and its developer has no relation to Keen Software House (or Malware).
@@ -30,8 +33,8 @@ This means it's run once after your game is loaded, or after you recompile your 
 Recompiling happens when you have edited your script or when you press the Recompile button.
 The constructor is optional, you don't need it to have a working script.
 
-[The Anatomy of a Script](https://github.com/malware-dev/MDK-SE/wiki/The-Anatomy-of-a-Script)
 ```
+[The Anatomy of a Script](https://github.com/malware-dev/MDK-SE/wiki/The-Anatomy-of-a-Script)
 
 In this example we utilize the constructor to define our Custom Program. Our definition includes:
 * Whether or not our custom program will loop (run itself again and again) or only run once.
