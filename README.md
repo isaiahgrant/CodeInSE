@@ -4,9 +4,11 @@ A C#-based framework, built on Malware's MDK, used for development of Ingame scr
 KSH: https://www.spaceengineersgame.com/
 
 MDK: https://github.com/malware-dev/MDK-SE/wiki -- I highly suggest you
-familiarize yourself with this, I will reference it regularly. It is also
-a dependency of the framework (and should be for any SE development IMHO)
-so make sure that you have it installed.
+familiarize yourself with this, I will reference it regularly.
+It is also a dependency of the framework (and should be for any SE
+development IMHO) so make sure that you have it installed.
+To utilize this framework simply copy/paste it's code into a new
+MDK project.
 
 Recycled line from Malware:
 Space Engineers is trademarked to Keen Software House. This toolkit (framework) is fan-made, and its developer has no relation to Keen Software House (or Malware).
