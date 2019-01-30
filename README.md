@@ -1,77 +1,107 @@
-# CodeInSE
-A C#-based framework, built on Malware's MDK, used for development of Ingame scripts in Keen Software House's game Space Engineers.
+# Code in SE Framework
+This document is written assuming that you have read the [README](README.md).
 
-KSH: https://www.spaceengineersgame.com/
-MDK: https://github.com/malware-dev/MDK-SE/wiki -- I highly suggest you familiarize yourself with this, I will reference it regularly.
+This serves as formal documentation for the framework.
 
-To borrow a line from Malware:
-Space Engineers is trademarked to Keen Software House. This framework is fan-made, and its developer has no relation to Keen Software House.
+The framework is made of three major components:
+* [Modules](#Modules)
+* [Base classes](#Base-Classes)
+* [Implementation](#Implementation)
 
-## Basic Usage
-Here we will walk through the simple example program provided with this project.
+# Modules
+A base set of functionality that comprises most of the framework. All modules are members of the Program class and as such are quickly accessible and managed.
 
-Common terms used are defined as follows:
-* SE: Space Engineers, silly :).
-* Program, base Program: The base class of any SE script.
-* PB: The ingame programmable block that contains and executes your SE script.
-* Custom Program: The base class of any functionality you write using this framework.
-* Command: Arguments are the string passed to the PB when the PB is ran. Commands are arguments that your script expects and have logic (code) to handle.
-* Hello Program: The example program (derives from Custom Program).
+Modules are listed in the order that they are initialized as they may
+have dependencies on one another.
 
-### Hello Program
-Hello Program utilizes most of the functionality you require when writing scripts in SE. Lets explore those and the simplicity of the framework.
+Refer to [Program](CodeInSE/Program.cs) for more information.
 
-#### Constructor
-The Hello Program is initialized as part of the base Program's constructor. A snippet from the MDK in reference to the base Program constructor:
-```
-It is used for one-time initialization of your script, and is run once every time your script is instantiated. This means it's run once after your game is loaded, or after you recompile your script. Recompiling happens when you have edited your script or when you press the Recompile button. The constructor is optional, you don't need it to have a working script.
+## Grid Module
+Grid is a simple interface for the [GridTerminalSystem](https://github.com/malware-dev/MDK-SE/wiki/The-Grid-Terminal-System)
 
-https://github.com/malware-dev/MDK-SE/wiki/The-Anatomy-of-a-Script
-```
+It features single function access to any blocks available to the PB.
+Blocks can be acquired by block name, block group, and block type.
 
-In this example we utilize the constructor to define our Custom Program. Our definition includes:
-* Whether or not our custom program will loop (run itself again and again) or only run once.
-* Commands (arguments) that our program will response to and the functions that it will use to handle them.
-* Writes to the Logging module (more later) that initilization is complete.
-```
-public HelloProgram()
-{
-    // This program only runs once before terminating (does not loop).
-    // See Base class (CustomProgram) for more information.
-    _program.Runtime.UpdateFrequency = UpdateFrequency.None;
+[reference](CodeInSE/Grid.cs)
 
-    // Declare how your program will handle commands (map a function to a command).
-    _commandHandlers = new Dictionary<string, System.Action>();
-    _commandHandlers[Command.SETUP] = Setup;
-    _commandHandlers[Command.NONE] = None;
-    _commandHandlers[Command.RESET] = Reset;
-    _commandHandlers[Command.HELLO] = Hello;
+## Logger Module
+Logger is a module that manages the output of your program. Logger
+interfaces with both the PB's output terminal (Echo) as well as
+pre-configured LCDs.
 
-    _program._logger.SysLog<HelloProgram>("initialized.");
-}
-```
-#### Hello Command Handler
-The other command handlers are simple examples, so we will spend our time focusing on the Hello command handler.
-The purpose of this function is to showcase the simplicity of the framework. Here are all the things accomplished in the small amount of code you see here:
-* The program outputs a log header and body to the PB's output (Echo) _and_ any pre-configured LCDs through simple Logger module functions.
-* The program utilizes data that was saved from a previous execution of the script.
-* The program utilizes configuration through the PB's CustomData to allow customizable behavior. In this case simply setting the name of the PB to the value set in configuration.
-* Finally, the program logs what it accomplished.
-```
-public void Hello()
-{
-    // Write a message from your program.
-    _program._logger.SetLogHeader("CodeInSE is easy\n================");
-    _program._logger.AppendToLogBody("Hello Space!");
-    // Utilize saved data.
-    if (!String.IsNullOrEmpty(_lastTimeRan))
-    {
-        _program._logger.AppendToLogBody($"Detected a save. Last time program was ran was: {_lastTimeRan}");
-    }
-    // Utilize configured data.
-    _program.Me.CustomName = _customName;
-    _program._logger.AppendToLogBody($"Set PB's custom name to: {_customName}");
-}
-```
-#### In Closing
-That is all you need to know to start programming in SE. Of course this script is not very useful, but it is a gateway into a world of efficient and automated systems in SE! Below we will explore the framework in more detail, so keep reading if you like deets and the nitty gritty (or just want to know more about advanced usage)!
+Logger includes a static header as well as a body that can be
+configured to behave as desired. For example you can choose to append logs 
+vs. clearing logs each run.
+
+You can also set a log level with each output. This allows you to output
+logs to various audiences without having to change your code. This is
+achieved through 5 log levels (SYSTEM, DEBUG, INFO, WARNING, and ERROR).
+By setting the desired log level when initializing the Logger you can
+effectively filter outputs to only see what you care about (and your users
+can too!).
+
+To interface a LCD with the logger simply add the LCD to a group named
+after your Logger._globalIdentifier or add your Logger._globalIdentifier
+to the name of the LCD.
+
+[reference](CodeInSE/Logger.cs)
+
+## Disk Module
+The disk module interfaces with the Program's persistent Storage member.
+Storage allows you to persist data across runs of your script, for example
+when the game is saved and reloaded. CustomProgram is a child class of
+Serializable and as such implements the LoadFields and SaveToFields
+methods. These methods allow you to save/load any data (fields) you wish
+to obtain the next time the script is loaded.
+
+You can also read from/write to Disk independent of the save/load
+mechanism.
+
+[reference](CodeInSE/Disk.cs)
+
+## Configuration Module
+The configuration module interfaces with the PB's CustomData (much in the 
+same way as the Disk Module does with Storage). The difference here is that
+CustomData is more accessible to users and should really only be used for
+configuration of your script.
+
+Configuration of your script gives you (and users) the ability to change
+the functionality of your script without changing the code driving the
+behavior. This can be utilized for custom timing, configuring which block
+to retrieve, etc.
+
+[reference](CodeInSE/Configuration.cs)
+
+## Command Module
+Arguments are the string passed to your program when it is ran by a user.
+Commands are arguments that the script expects and has a logic handle for
+(code to execute based on the command). The command module interprets
+arguments and resolves a command and it's parameters. Through this method
+the CustomProgram simply references the handle associated to the Command
+resolved.
+
+Command is also saved on Program save so that a script can continue
+execution of the last known command once loaded again.
+
+[reference](CodeInSE/Command.cs)
+
+## Timer Module
+Somewhat recently SE built in the ability for scripts to execute themselves
+without the need for a Timer block. The timer module is in place to give
+you the convenience of precision timing and self-throttling to give your
+script the exact timing it needs while prevent your script from weighing
+down the games performance.
+
+The timer module has default configuration but can be managed by users so
+that they can customize their preference. As a developer, you do not have
+to code around timing but rather simply set your script to self-looping
+and allow configuration to dictate the timing (though I do recommend
+defaults to be sensible values based on the script).
+
+[reference](CodeInSE/Timer.cs)
+
+# Base/Utility Classes
+Base classes refers more explicitly to Serializable and CustomProgram. These two classes allow whatever implementation you utilize inherit the function and utility of the framework. Serializable allows you to quickly and easily save and load your script, while CustomProgram is a base class for your script (much like Program is without the framework).
+
+# Implementation
+This is where your script/code will live. By implementing your solution in this hierarchy you can maximize the framework.
